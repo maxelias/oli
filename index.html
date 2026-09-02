@@ -470,6 +470,61 @@ body {
   display: block;
   border-radius: 4px;
 }
+
+/* ── Page2 image + overlaid carousel ── */
+/* page2-media-wrap is a normal (non-fixed) block that scrolls with the page.
+   The carousel is absolutely positioned within it at a fixed distance from
+   the top of the image, so as the user scrolls, the carousel moves in lock-step
+   with that spot on the image — it never "floats" independently. */
+#page2-media-wrap {
+  position: relative;
+  width: 100%;
+}
+
+#fav-carousel {
+  position: absolute;
+  top: 3.5%; /* adjust to sit over whatever part of the image you want */
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  z-index: 5;
+}
+
+#fav-track {
+  display: flex;
+  will-change: transform;
+  touch-action: pan-y;
+}
+
+.fav-card {
+  flex: 0 0 67%;
+  margin: 0 17.2%;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #1c1c1c;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+}
+
+.fav-https://i.ibb.co/fVmjwG2S/Untitled-design-1.jpgd img {
+  width: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+#fav-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 12px 0 0;
+}
+
+.fav-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.35);
+  transition: background 0.2s;
+}
 </style>
 </head>
 
@@ -519,7 +574,7 @@ body {
 
       <img
         id="main-gif"
-        src="https://jumpshare.com/share/qLVrXiYOA31umCfwvECP"
+        src="https://i.ibb.co/Nd8nnY5j/download-1.gif"
         class="main-gif"
         alt=""
         fetchpriority="high"
@@ -541,10 +596,27 @@ body {
 
   <div class="content" id="p2-content">
 
-    <img
-      src="https://jumpshare.com/share/0XJ82suzmhliscsSTRZm"
-      class="page2-main"
-    >
+    <div id="page2-media-wrap">
+
+      <img
+        src="https://i.ibb.co/fVmjwG2S/Untitled-design-1.jpg"
+        class="page2-main"
+      >
+
+      <!-- Carousel overlaid on the page2 image; scrolls together with it -->
+      <div id="fav-carousel">
+        <div id="fav-track">
+          <div class="fav-card"><img src="https://i.postimg.cc/85YB3Kms/IMG-8515.jpg" alt="" draggable="false"></div>
+          <div class="fav-card"><img src="https://i.ibb.co/v6023zSk/Screenshot-2026-09-02-at-5-56-46-pm.png" alt="" draggable="false"></div>
+        </div>
+        <div id="fav-dots">
+          <div class="fav-dot"></div>
+          <div class="fav-dot"></div>
+        </div>
+      </div>
+      <!-- /carousel -->
+
+    </div>
 
   </div>
 
@@ -639,7 +711,7 @@ body {
 <script>
 
 const GIF_SRC =
-  "https://jumpshare.com/share/qLVrXiYOA31umCfwvECP";
+  "https://i.ibb.co/Nd8nnY5j/download-1.gif";
 
 const p1 = document.getElementById("page1");
 const p2 = document.getElementById("page2");
@@ -1139,6 +1211,8 @@ function init() {
     }
 
   }, 10);
+
+  initCarousel();
 }
 
 
@@ -1312,6 +1386,90 @@ window.addEventListener(
 
   }
 );
+
+
+/* ══════════════ Favourites carousel overlaid on page2 image ══════════════ */
+
+function initCarousel() {
+
+  const carousel = document.getElementById("fav-carousel");
+  const track = document.getElementById("fav-track");
+
+  if (!carousel || !track) return;
+
+  const cards = track.querySelectorAll(".fav-card");
+  const dots = document.querySelectorAll(".fav-dot");
+  const N = cards.length;
+
+  let index = 0;
+  let cardWidth = 0;
+  let cStartX = 0, cCurrentX = 0, cDragging = false, baseOffset = 0;
+
+  function measure() {
+    const r = cards[0].getBoundingClientRect();
+    const style = getComputedStyle(cards[0]);
+    cardWidth = r.width + parseFloat(style.marginLeft) + parseFloat(style.marginRight);
+  }
+
+  function centerOffset() {
+    return (carousel.clientWidth - cardWidth) / 2;
+  }
+
+  function setTransform(px, animate) {
+    track.style.transition = animate ? "transform 0.32s cubic-bezier(0.32,0.72,0,1)" : "none";
+    track.style.transform = `translateX(${px}px)`;
+  }
+
+  function goTo(i, animate = true) {
+    index = Math.max(0, Math.min(N - 1, i));
+    const px = centerOffset() - index * cardWidth;
+    setTransform(px, animate);
+    updateDots();
+  }
+
+  function updateDots(progressIndex) {
+    const active = progressIndex !== undefined ? progressIndex : index;
+    dots.forEach((d, i) => {
+      const dist = Math.max(0, 1 - Math.abs(active - i));
+      d.style.background = `rgba(120,190,255,${0.3 + dist * 0.7})`;
+    });
+  }
+
+  track.addEventListener("touchstart", e => {
+    measure();
+    cDragging = true;
+    cStartX = e.touches[0].clientX;
+    baseOffset = centerOffset() - index * cardWidth;
+    track.style.transition = "none";
+    e.stopPropagation();
+  }, { passive: true });
+
+  track.addEventListener("touchmove", e => {
+    if (!cDragging) return;
+    cCurrentX = e.touches[0].clientX;
+    const diff = cCurrentX - cStartX;
+    track.style.transform = `translateX(${baseOffset + diff}px)`;
+    updateDots(index - diff / cardWidth);
+    e.stopPropagation();
+  }, { passive: true });
+
+  track.addEventListener("touchend", e => {
+    if (!cDragging) return;
+    cDragging = false;
+    const diff = cCurrentX - cStartX;
+    const threshold = cardWidth * 0.2;
+    if (diff <= -threshold) goTo(index + 1);
+    else if (diff >= threshold) goTo(index - 1);
+    else goTo(index);
+    cCurrentX = cStartX;
+    e.stopPropagation();
+  });
+
+  window.addEventListener("resize", () => { measure(); goTo(index, false); });
+
+  measure();
+  goTo(0, false);
+}
 
 </script>
 

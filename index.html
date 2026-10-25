@@ -4,12 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>App Title</title>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://file.garden https://play-lh.googleusercontent.com https://www.image2url.com https://i.postimg.cc; img-src 'self' data: https://file.garden https://play-lh.googleusercontent.com https://www.image2url.com https://i.postimg.cc; media-src 'self' https://file.garden blob:; connect-src 'self'; script-src 'self' 'unsafe-inline';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://file.garden https://play-lh.googleusercontent.com https://www.image2url.com https://i.postimg.cc https://files.catbox.moe; img-src 'self' data: https://file.garden https://play-lh.googleusercontent.com https://www.image2url.com https://i.postimg.cc https://files.catbox.moe; media-src 'self' https://file.garden https://files.catbox.moe blob:; connect-src 'self'; script-src 'self' 'unsafe-inline';">
 <link rel="icon" href="https://play-lh.googleusercontent.com/uulKLexOFnvrpg5ltH3jBAnCbMMed6VbaogVr9etutmFXO-P5w0JRa7sgJ1EstibjtI=w240-h480-rw" type="image/png">
 <link rel="apple-touch-icon" href="https://file.garden/aeSpG6iUoRzyQ8ca/Screenshot%202026-04-28%20at%204.53.50%E2%80%AFpm.png">
 <link rel="preconnect" href="https://file.garden">
 <link rel="preconnect" href="https://i.postimg.cc">
-<link rel="preload" as="image" href="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20design.gif" fetchpriority="high">
 <link rel="preload" as="video" href="https://files.catbox.moe/6yz9xc.mp4">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -22,12 +21,6 @@
   }
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html { height: 100%; background-color: #111111; }
-  #intro-splash {
-    position: fixed; inset: 0; z-index: 99999;
-    background: #111111;
-    display: flex; align-items: center; justify-content: center;
-  }
-  #intro-gif { width: 100%; height: 100%; object-fit: cover; display: block; }
   /* ══════════ Orientation lock (portrait only) ══════════ */
   @media screen and (orientation: landscape) {
     html {
@@ -297,16 +290,6 @@
 </style>
 </head>
 <body>
-<div id="intro-splash">
-  <img
-    id="intro-gif"
-    src="https://file.garden/aeSpG6iUoRzyQ8ca/Untitled%20design.gif"
-    alt=""
-    fetchpriority="high"
-    decoding="async"
-    loading="eager"
-  >
-</div>
 <div id="privacy-cover">
   <img src="https://www.image2url.com/r2/default/images/1787920494762-547907e5-f90d-4695-9664-d39198e8d54e.png" alt="">
 </div>
@@ -634,12 +617,6 @@
     initSwipeBack();
     initMotionCanvas();
 
-    const introSplash = document.getElementById("intro-splash");
-    if (introSplash) {
-      setTimeout(() => {
-        introSplash.style.display = "none";
-      }, 2900);
-    }
   }
   document.getElementById("header2").addEventListener("click", () => showPage(2));
   window.addEventListener("load", init);
